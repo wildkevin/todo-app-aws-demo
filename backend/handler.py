@@ -1,5 +1,3 @@
-# Hello World stub — proves Lambda can write to and read from DynamoDB.
-# Will be replaced with real to-do CRUD logic in a later step.
 import json
 import os
 from datetime import datetime, timezone
@@ -10,23 +8,30 @@ TABLE_NAME = os.environ["TABLE_NAME"]
 table = boto3.resource("dynamodb").Table(TABLE_NAME)
 
 
-def handler(event, context):
-    item = {
-        "id": "hello-world",
-        "message": "Hello from Lambda!",
-        "writtenAt": datetime.now(timezone.utc).isoformat(),
-    }
-
-    table.put_item(Item=item)
-    result = table.get_item(Key={"id": "hello-world"})
-
+def _response(status_code, body):
     return {
-        "statusCode": 200,
+        "statusCode": status_code,
         "headers": {"Content-Type": "application/json"},
-        "body": json.dumps(
-            {
-                "message": "Hello World from the To-Do App backend!",
-                "readBackFromDynamoDB": result.get("Item"),
-            }
-        ),
+        "body": json.dumps(body),
     }
+
+
+def _error(status_code, message):
+    return _response(status_code, {"error": message})
+
+
+def list_todos():
+    items = table.scan().get("Items", [])
+    items.sort(key=lambda item: item["createdAt"])
+    return _response(200, items)
+
+
+def handler(event, context):
+    method = event["requestContext"]["http"]["method"]
+    path = event["rawPath"]
+    segments = [s for s in path.split("/") if s]
+
+    if method == "GET" and segments == ["todos"]:
+        return list_todos()
+
+    return _error(404, "not found")
