@@ -69,6 +69,15 @@ def toggle_todo(todo_id):
     return _response(200, existing)
 
 
+def delete_todo(todo_id):
+    existing = table.get_item(Key={"id": todo_id}).get("Item")
+    if existing is None:
+        return _error(404, "not found")
+
+    table.delete_item(Key={"id": todo_id})
+    return _response(200, {"id": todo_id, "deleted": True})
+
+
 def handler(event, context):
     method = event["requestContext"]["http"]["method"]
     path = event["rawPath"]
@@ -82,5 +91,8 @@ def handler(event, context):
 
     if method == "PATCH" and len(segments) == 2 and segments[0] == "todos":
         return toggle_todo(segments[1])
+
+    if method == "DELETE" and len(segments) == 2 and segments[0] == "todos":
+        return delete_todo(segments[1])
 
     return _error(404, "not found")
