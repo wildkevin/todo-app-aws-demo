@@ -139,14 +139,14 @@ if aws lambda get-function-url-config --function-name "$FUNCTION_NAME" --region 
   aws lambda update-function-url-config \
     --function-name "$FUNCTION_NAME" \
     --auth-type NONE \
-    --cors "{\"AllowOrigins\":[\"${WEBSITE_ORIGIN}\"],\"AllowMethods\":[\"GET\"],\"AllowHeaders\":[\"content-type\"]}" \
+    --cors "{\"AllowOrigins\":[\"${WEBSITE_ORIGIN}\"],\"AllowMethods\":[\"GET\",\"POST\",\"PATCH\",\"DELETE\"],\"AllowHeaders\":[\"content-type\"]}" \
     --region "$REGION" >/dev/null
 else
   echo "[lambda] creating function URL"
   aws lambda create-function-url-config \
     --function-name "$FUNCTION_NAME" \
     --auth-type NONE \
-    --cors "{\"AllowOrigins\":[\"${WEBSITE_ORIGIN}\"],\"AllowMethods\":[\"GET\"],\"AllowHeaders\":[\"content-type\"]}" \
+    --cors "{\"AllowOrigins\":[\"${WEBSITE_ORIGIN}\"],\"AllowMethods\":[\"GET\",\"POST\",\"PATCH\",\"DELETE\"],\"AllowHeaders\":[\"content-type\"]}" \
     --region "$REGION" >/dev/null
 
   # Since Oct 2025, function URLs need BOTH InvokeFunctionUrl and InvokeFunction
