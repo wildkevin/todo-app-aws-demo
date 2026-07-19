@@ -180,14 +180,21 @@ filtersEl.addEventListener("click", (e) => {
 });
 
 async function clearCompleted() {
-  const completed = todos.filter((t) => t.completed);
-  await Promise.all(
+  const completed = todos.filter((t) => t.completed && !pendingDeletes.has(t.id));
+  const results = await Promise.all(
     completed.map((t) =>
-      fetch(ITEM_ENDPOINT(t.id), { method: "DELETE" }).catch((err) => console.error(err))
+      fetch(ITEM_ENDPOINT(t.id), { method: "DELETE" })
+        .then((res) => ({ id: t.id, ok: res.ok }))
+        .catch(() => ({ id: t.id, ok: false }))
     )
   );
-  todos = todos.filter((t) => !t.completed);
-  render();
+  const failedCount = results.filter((r) => !r.ok).length;
+  if (failedCount > 0) {
+    await fetchTodos();
+  } else {
+    todos = todos.filter((t) => !t.completed);
+    render();
+  }
 }
 
 clearBtn.addEventListener("click", clearCompleted);
