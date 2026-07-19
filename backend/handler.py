@@ -25,7 +25,7 @@ def _error(status_code, message):
 
 def list_todos():
     items = table.scan().get("Items", [])
-    items.sort(key=lambda item: item["createdAt"])
+    items.sort(key=lambda item: item.get("createdAt", ""))
     return _response(200, items)
 
 
@@ -59,7 +59,7 @@ def toggle_todo(todo_id):
     if existing is None:
         return _error(404, "not found")
 
-    new_completed = not existing["completed"]
+    new_completed = not existing.get("completed", False)
     table.update_item(
         Key={"id": todo_id},
         UpdateExpression="SET completed = :c",
