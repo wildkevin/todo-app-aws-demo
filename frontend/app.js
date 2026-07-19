@@ -58,6 +58,7 @@ function buildRow(todo) {
   del.className = "row__delete";
   del.setAttribute("aria-label", "delete");
   del.textContent = "✕";
+  del.addEventListener("click", () => deleteTodo(todo));
 
   li.appendChild(check);
   li.appendChild(text);
@@ -117,6 +118,53 @@ async function toggleTodo(todo) {
   } catch (err) {
     todo.completed = previous;
     console.error(err);
+  }
+  render();
+}
+
+let toastTimeoutId = null;
+
+function showToast(message, onUndo) {
+  toastMessageEl.textContent = message;
+  toastEl.hidden = false;
+  toastUndoBtn.onclick = onUndo;
+}
+
+function hideToast() {
+  toastEl.hidden = true;
+  toastUndoBtn.onclick = null;
+}
+
+function deleteTodo(todo) {
+  const timeoutId = setTimeout(() => finalizeDelete(todo.id), 5000);
+  pendingDeletes.set(todo.id, { timeoutId });
+  render();
+  showToast("Task deleted", () => undoDelete(todo.id));
+}
+
+function undoDelete(id) {
+  const pending = pendingDeletes.get(id);
+  if (!pending) return;
+  clearTimeout(pending.timeoutId);
+  pendingDeletes.delete(id);
+  hideToast();
+  render();
+}
+
+async function finalizeDelete(id) {
+  pendingDeletes.delete(id);
+  hideToast();
+  try {
+    const res = await fetch(ITEM_ENDPOINT(id), { method: "DELETE" });
+    if (!res.ok) {
+      const data = await res.json();
+      throw new Error(data.error || "failed to delete task");
+    }
+    todos = todos.filter((t) => t.id !== id);
+  } catch (err) {
+    console.error(err);
+    await fetchTodos();
+    return;
   }
   render();
 }
