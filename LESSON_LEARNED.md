@@ -60,3 +60,25 @@ some AWS regional subdomains.
 
 **Takeaway**: "SSL error talking to a well-known, definitely-reachable host" is a strong signal
 to check for a local proxy/VPN before suspecting the remote service.
+
+## 4. Local frontend testing failed with a generic "Failed to fetch"
+
+**Symptom**: serving `frontend/` locally (`python3 -m http.server 8000`) and clicking "Call
+Lambda" showed `Request failed: Failed to fetch` — no useful detail on the page itself.
+
+**Root cause**: the Function URL's CORS `AllowOrigins` was locked to only the deployed S3
+website origin (by design, per the least-privilege/CORS requirement in the assignment), so
+`http://localhost:8000` was rejected. Browsers deliberately hide the real CORS failure reason
+from JavaScript's `fetch()` — it only shows up in the DevTools **Console** tab, not in anything
+`app.js` can catch and display.
+
+**Fix**: added `http://localhost:8000` to the Function URL's `AllowOrigins`, applied live via
+`aws lambda update-function-url-config` — deliberately **not** baked into `deploy.sh`, since the
+canonical deploy script should keep CORS scoped to only the real deployed origin. This means the
+live config and `deploy.sh` have now diverged on purpose; re-running `deploy.sh` will reset CORS
+to prod-only and silently break local testing again until the command is re-run manually.
+
+**Takeaway**: a bare `"Failed to fetch"` from `fetch()` with no other detail is a strong signal to
+check the browser console for a CORS error before assuming the backend itself is broken. Also:
+convenience changes for local dev and the "canonical" deploy config can legitimately diverge —
+just document it so it doesn't look like a mystery later.
