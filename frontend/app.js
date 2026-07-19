@@ -169,6 +169,16 @@ async function finalizeDelete(id) {
   render();
 }
 
+filtersEl.addEventListener("click", (e) => {
+  const btn = e.target.closest(".filter-tab");
+  if (!btn) return;
+  filter = btn.dataset.filter;
+  document.querySelectorAll(".filter-tab").forEach((el) => {
+    el.classList.toggle("is-active", el === btn);
+  });
+  render();
+});
+
 // -- bootstrap --
 fetchTodos().catch((err) => {
   console.error(err);
