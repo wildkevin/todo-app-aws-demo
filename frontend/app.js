@@ -179,6 +179,19 @@ filtersEl.addEventListener("click", (e) => {
   render();
 });
 
+async function clearCompleted() {
+  const completed = todos.filter((t) => t.completed);
+  await Promise.all(
+    completed.map((t) =>
+      fetch(ITEM_ENDPOINT(t.id), { method: "DELETE" }).catch((err) => console.error(err))
+    )
+  );
+  todos = todos.filter((t) => !t.completed);
+  render();
+}
+
+clearBtn.addEventListener("click", clearCompleted);
+
 // -- bootstrap --
 fetchTodos().catch((err) => {
   console.error(err);
