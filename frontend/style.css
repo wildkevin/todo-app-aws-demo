@@ -1,0 +1,231 @@
+:root {
+  --paper: #EDEFF2;
+  --ink: #1F2A44;
+  --accent: #C1443C;
+  --graphite: #5B6472;
+  --card: #FFFFFF;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: "IBM Plex Sans", -apple-system, sans-serif;
+  display: flex;
+  justify-content: center;
+  padding: 3rem 1rem;
+}
+
+.ledger {
+  width: 100%;
+  max-width: 480px;
+  background: var(--card);
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(31, 42, 68, 0.12);
+  padding: 1.5rem 1.75rem 1.75rem;
+}
+
+.ledger__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 1px solid var(--ink);
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.ledger__title {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 1.1rem;
+  letter-spacing: 0.15em;
+  margin: 0;
+}
+
+.ledger__count {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.8rem;
+  color: var(--graphite);
+}
+
+.ledger__add {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.ledger__input {
+  flex: 1;
+  border: 1px solid #cfd4dc;
+  border-radius: 3px;
+  padding: 0.5rem 0.65rem;
+  font-family: "IBM Plex Sans", sans-serif;
+  font-size: 0.95rem;
+}
+
+.ledger__input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(193, 68, 60, 0.15);
+}
+
+.ledger__add-btn {
+  background: var(--accent);
+  color: white;
+  border: none;
+  border-radius: 3px;
+  padding: 0 1rem;
+  font-family: "IBM Plex Sans", sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.ledger__error {
+  color: var(--accent);
+  font-size: 0.85rem;
+  margin: 0.4rem 0 0.75rem;
+}
+
+.ledger__filters {
+  display: flex;
+  gap: 1rem;
+  border-bottom: 1px solid #e2e5ea;
+  margin: 1rem 0 0.5rem;
+}
+
+.filter-tab {
+  background: none;
+  border: none;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: var(--graphite);
+  padding: 0 0 0.5rem;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.filter-tab.is-active {
+  color: var(--ink);
+  border-bottom-color: var(--accent);
+}
+
+.ledger__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid #edeff2;
+}
+
+.row__check {
+  width: 20px;
+  height: 20px;
+  border: 1.5px solid var(--graphite);
+  border-radius: 3px;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+}
+
+.row__check svg {
+  width: 14px;
+  height: 14px;
+}
+
+.row__check svg path {
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  transition: stroke-dashoffset 150ms ease;
+}
+
+.row--done .row__check svg path {
+  stroke-dashoffset: 0;
+}
+
+.row__text {
+  flex: 1;
+  font-size: 0.95rem;
+}
+
+.row--done .row__text {
+  color: var(--graphite);
+  text-decoration: line-through;
+  text-decoration-color: var(--graphite);
+  transition: color 150ms ease 120ms, text-decoration-color 150ms ease 120ms;
+}
+
+.row__delete {
+  background: none;
+  border: none;
+  color: var(--graphite);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 100ms ease;
+  font-size: 0.9rem;
+}
+
+.row:hover .row__delete {
+  opacity: 1;
+}
+
+.ledger__empty {
+  color: var(--graphite);
+  font-size: 0.9rem;
+  padding: 1.5rem 0;
+  text-align: center;
+}
+
+.ledger__clear {
+  background: none;
+  border: none;
+  color: var(--graphite);
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.75rem;
+  cursor: pointer;
+  margin-top: 0.75rem;
+  padding: 0;
+}
+
+.ledger__clear:hover {
+  color: var(--accent);
+}
+
+.toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: white;
+  padding: 0.6rem 1rem;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.85rem;
+}
+
+.toast button {
+  background: none;
+  border: none;
+  color: #f4a49e;
+  font-weight: 600;
+  cursor: pointer;
+}
