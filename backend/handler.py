@@ -54,6 +54,21 @@ def create_todo(body_raw):
     return _response(201, item)
 
 
+def toggle_todo(todo_id):
+    existing = table.get_item(Key={"id": todo_id}).get("Item")
+    if existing is None:
+        return _error(404, "not found")
+
+    new_completed = not existing["completed"]
+    table.update_item(
+        Key={"id": todo_id},
+        UpdateExpression="SET completed = :c",
+        ExpressionAttributeValues={":c": new_completed},
+    )
+    existing["completed"] = new_completed
+    return _response(200, existing)
+
+
 def handler(event, context):
     method = event["requestContext"]["http"]["method"]
     path = event["rawPath"]
@@ -64,5 +79,8 @@ def handler(event, context):
 
     if method == "POST" and segments == ["todos"]:
         return create_todo(event.get("body"))
+
+    if method == "PATCH" and len(segments) == 2 and segments[0] == "todos":
+        return toggle_todo(segments[1])
 
     return _error(404, "not found")
