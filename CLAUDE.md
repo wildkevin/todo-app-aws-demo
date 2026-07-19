@@ -31,11 +31,11 @@ Browser  →  S3 static website (frontend/)
 
 ## Current status
 
-Infra is stood up and verified end-to-end (S3 → Lambda → DynamoDB round trip confirmed via a
-real browser), but `backend/handler.py` and `frontend/` currently only contain a **Hello World
-stub** (writes/reads one fixed test item), not real to-do CRUD. The full CRUD version (create,
-list, toggle-complete, delete) was designed but deliberately deferred — the plan is to build it
-back up incrementally now that the infra path is proven.
+Full CRUD is live and verified end-to-end in a real browser: create, list, toggle-complete,
+delete (with a 5s undo window), filter tabs (All/Active/Completed), clear-completed. Backend
+routes on HTTP method + path in `backend/handler.py` (`GET/POST /todos`, `PATCH/DELETE
+/todos/{id}`), one function per route, `{"error": "<message>"}` envelope on every non-2xx
+response. Frontend is a from-scratch "ledger" UI in `frontend/` (plain JS, no framework).
 
 ## Resource names (region: us-east-1)
 
@@ -72,6 +72,4 @@ errors running AWS CLI commands manually, prefix with the same env var.
 
 ## Not yet done
 
-- Real to-do CRUD (create/list/toggle/delete) in `handler.py` and the frontend UI
 - The "AI Collaboration Snapshot" write-up (real prompts + one AI mistake + fix, max ~500 words)
-- Initial git commit (files are written but uncommitted as of this doc)

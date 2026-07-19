@@ -82,3 +82,36 @@ to prod-only and silently break local testing again until the command is re-run 
 check the browser console for a CORS error before assuming the backend itself is broken. Also:
 convenience changes for local dev and the "canonical" deploy config can legitimately diverge —
 just document it so it doesn't look like a mystery later.
+
+## 5. `hidden` attribute silently overridden by author CSS
+
+**Symptom**: the undo toast rendered visibly even though its `hidden` attribute was set — found
+via a live browser screenshot, not from reading the code.
+
+**Root cause**: `.toast { display: flex; ... }` in `style.css` always wins over the browser's
+built-in `[hidden] { display: none }` rule, because author-origin CSS beats user-agent CSS
+regardless of selector specificity. Any element toggled via `.hidden = true/false` in JS needs
+its hidden state to survive whatever display value its own class sets.
+
+**Fix**: added `[hidden] { display: none !important; }` once, globally, in `style.css`.
+
+**Takeaway**: `hidden` isn't a CSS reset by itself — the moment a class sets its own `display`,
+`hidden` needs an explicit override or it's silently ignored. Catchable only by actually looking
+at the rendered page, not by reading the JS logic (which was correct).
+
+## 6. Missing dict key crashes the handler on any off-schema row
+
+**Symptom**: none in production — caught by an independent security review and code review
+(both run in parallel) before it bit anyone, not by a live failure.
+
+**Root cause**: `list_todos`'s sort (`item["createdAt"]`) and `toggle_todo`
+(`existing["completed"]`) indexed required fields directly. Every row this app itself writes
+always has both fields, but the table had briefly held a differently-shaped item from the earlier
+Hello-World stub — and nothing stops a stray manual `put-item` from doing the same again.
+
+**Fix**: `item.get("createdAt", "")` / `existing.get("completed", False)` — two-line diff.
+
+**Takeaway**: "the app itself never writes a row like that" isn't the same guarantee as "no row
+like that will ever exist" in a schemaless table anyone with the URL can write to. Defensive
+reads at the boundary are cheap; worth doing even when you're confident about what your own code
+produces.
