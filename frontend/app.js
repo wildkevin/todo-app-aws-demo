@@ -48,6 +48,7 @@ function buildRow(todo) {
   check.className = "row__check";
   check.setAttribute("aria-label", "toggle complete");
   check.innerHTML = `<svg viewBox="0 0 20 20"><path d="M4 10 L8 14 L16 5" /></svg>`;
+  check.addEventListener("click", () => toggleTodo(todo));
 
   const text = document.createElement("span");
   text.className = "row__text";
@@ -103,6 +104,22 @@ addForm.addEventListener("submit", async (e) => {
     addError.hidden = false;
   }
 });
+
+async function toggleTodo(todo) {
+  const previous = todo.completed;
+  todo.completed = !previous;
+  render();
+  try {
+    const res = await fetch(ITEM_ENDPOINT(todo.id), { method: "PATCH" });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || "failed to update task");
+    todo.completed = data.completed;
+  } catch (err) {
+    todo.completed = previous;
+    console.error(err);
+  }
+  render();
+}
 
 // -- bootstrap --
 fetchTodos().catch((err) => {
