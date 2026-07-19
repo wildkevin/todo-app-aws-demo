@@ -79,6 +79,31 @@ function render() {
   clearBtn.hidden = !hasCompleted;
 }
 
+async function createTodo(text) {
+  const res = await fetch(LIST_ENDPOINT(), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ text }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data.error || "failed to add task");
+  todos.push(data);
+  render();
+}
+
+addForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  addError.hidden = true;
+  const text = addInput.value.trim();
+  try {
+    await createTodo(text);
+    addInput.value = "";
+  } catch (err) {
+    addError.textContent = err.message;
+    addError.hidden = false;
+  }
+});
+
 // -- bootstrap --
 fetchTodos().catch((err) => {
   console.error(err);
